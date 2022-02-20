@@ -85,7 +85,8 @@ public class HTTPSession implements IHTTPSession {
 
     private final NanoHTTPD httpd;
 
-    private final ITempFileManager tempFileManager;
+    /** patched: autumo-beetroot */
+    protected final ITempFileManager tempFileManager;
 
     private final OutputStream outputStream;
 
@@ -95,21 +96,27 @@ public class HTTPSession implements IHTTPSession {
 
     private int rlen;
 
-    private String uri;
+    /** patched: autumo-beetroot */
+    protected String uri;
 
-    private Method method;
+    /** patched: autumo-beetroot */
+    protected Method method;
 
-    private Map<String, List<String>> parms;
+    /** patched: autumo-beetroot */
+    protected Map<String, List<String>> parms;
 
-    private Map<String, String> headers;
+    /** patched: autumo-beetroot */
+    protected Map<String, String> headers;
 
-    private CookieHandler cookies;
+    /** patched: autumo-beetroot */
+    protected CookieHandler cookies;
 
     private String queryParameterString;
 
     private String remoteIp;
 
-    private String protocolVersion;
+    /** patched: autumo-beetroot */
+    protected String protocolVersion;
 
     public HTTPSession(NanoHTTPD httpd, ITempFileManager tempFileManager, InputStream inputStream, OutputStream outputStream) {
         this.httpd = httpd;
@@ -548,11 +555,11 @@ public class HTTPSession implements IHTTPSession {
         return this.method;
     }
 
+    /** patched: autumo-beetroot */ 
     /**
-     * @deprecated use {@link #getParameters()} instead.
+     * nope@deprecated use {@link #getParameters()} instead.
      */
     @Override
-    @Deprecated
     public final Map<String, String> getParms() {
         Map<String, String> result = new HashMap<String, String>();
         for (String key : this.parms.keySet()) {
@@ -666,11 +673,12 @@ public class HTTPSession implements IHTTPSession {
         }
     }
 
+    /** patched: autumo-beetroot */
     /**
      * Retrieves the content of a sent file and saves it to a temporary file.
      * The full path to the saved file is returned.
      */
-    private String saveTmpFile(ByteBuffer b, int offset, int len, String filename_hint) {
+    protected String saveTmpFile(ByteBuffer b, int offset, int len, String filename_hint) {
         String path = "";
         if (len > 0) {
             FileOutputStream fileOutputStream = null;
@@ -695,4 +703,5 @@ public class HTTPSession implements IHTTPSession {
     public String getRemoteIpAddress() {
         return this.remoteIp;
     }
+    
 }

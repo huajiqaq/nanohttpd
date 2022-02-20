@@ -5,9 +5,12 @@
 		<artifactId>nanohttpd-project</artifactId>
 		<version>2.3.2-SNAPSHOT</version>
 	</parent>
+	
 	<artifactId>nanohttpd</artifactId>
 	<packaging>jar</packaging>
 	<name>NanoHttpd-Core</name>
+	<version>2.3.2-BEETROOT</version>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>

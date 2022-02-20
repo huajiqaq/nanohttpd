@@ -67,7 +67,7 @@ public class ServerRunner {
 
     public static <T extends NanoHTTPD> void run(Class<T> serverClass) {
         try {
-            executeInstance(serverClass.newInstance());
+            executeInstance(serverClass.getDeclaredConstructor().newInstance()); 
         } catch (Exception e) {
             ServerRunner.LOG.log(Level.SEVERE, "Could not create server", e);
         }

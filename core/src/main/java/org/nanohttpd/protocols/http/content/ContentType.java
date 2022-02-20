@@ -40,7 +40,8 @@ public class ContentType {
 
     private static final String ASCII_ENCODING = "US-ASCII";
 
-    private static final String MULTIPART_FORM_DATA_HEADER = "multipart/form-data";
+    /** patched: autumo-beetroot */
+    public static final String MULTIPART_FORM_DATA_HEADER = "multipart/form-data";
 
     private static final String CONTENT_REGEX = "[ |\t]*([^/^ ^;^,]+/[^ ^;^,]+)";
 
