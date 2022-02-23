@@ -65,6 +65,11 @@ import org.nanohttpd.protocols.http.request.Method;
  */
 public class Response implements Closeable {
 
+    /** patched: autumo-beetroot */
+	private static int EXTERNAL_RESP_BUF_SIZE_KB = 
+			System.getProperty("ch.autumo.beetroot.respDownBufSizeKB") != null ? 
+					Integer.valueOf(System.getProperty("ch.autumo.beetroot.respDownBufSizeKB")).intValue() : 16;
+	
     /**
      * HTTP status code after processing, e.g. "200 OK", Status.OK
      */
@@ -343,7 +348,9 @@ public class Response implements Closeable {
      *             if something goes wrong while sending the data.
      */
     public void sendBody(OutputStream outputStream, long pending) throws IOException {
-        long BUFFER_SIZE = 16 * 1024;
+    	
+        /** patched: autumo-beetroot */
+        long BUFFER_SIZE = EXTERNAL_RESP_BUF_SIZE_KB * 1024;
         byte[] buff = new byte[(int) BUFFER_SIZE];
         boolean sendEverything = pending == -1;
         while (pending > 0 || sendEverything) {
