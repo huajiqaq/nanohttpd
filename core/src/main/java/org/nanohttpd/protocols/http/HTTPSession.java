@@ -687,7 +687,12 @@ public class HTTPSession implements IHTTPSession {
                 ByteBuffer src = b.duplicate();
                 fileOutputStream = new FileOutputStream(tempFile.getName());
                 FileChannel dest = fileOutputStream.getChannel();
-                src.position(offset).limit(offset + len);
+                
+                // hack, to make sure java 1.8 is used - known issue
+                // see: https://www.morling.dev/blog/bytebuffer-and-the-dreaded-nosuchmethoderror/
+                ((java.nio.Buffer) src).position(offset).limit(offset + len);
+                //src.position(offset).limit(offset + len);
+                
                 dest.write(src.slice());
                 path = tempFile.getName();
             } catch (Exception e) { // Catch exception if any
