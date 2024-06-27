@@ -9,7 +9,7 @@
 	<artifactId>nanohttpd</artifactId>
 	<packaging>jar</packaging>
 	<name>NanoHttpd-Core</name>
-	<version>2.3.4-BEETROOT</version>
+	<version>BEETROOT-2.3.4</version>
 	
 	<dependencies>
 		<dependency>
