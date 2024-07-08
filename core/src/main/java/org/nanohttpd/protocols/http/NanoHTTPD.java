@@ -545,7 +545,6 @@ public abstract class NanoHTTPD {
      *            The HTTP session
      * @return HTTP response, see class Response for details
      */
-    @Deprecated
     protected Response serve(IHTTPSession session) {
         return Response.newFixedLengthResponse(Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Not Found");
     }
