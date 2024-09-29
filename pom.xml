@@ -3,11 +3,11 @@
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
-		<version>7</version>
+		<version>8</version>
 	</parent>
 	<groupId>org.nanohttpd</groupId>
 	<artifactId>nanohttpd-project</artifactId>
-	<version>2.3.2-SNAPSHOT</version>
+	<version>BEETROOT-2.3.4</version>
 	<packaging>pom</packaging>
 	<name>NanoHttpd-Project</name>
 	<description>NanoHttpd is a light-weight HTTP server designed for embedding in other applications.</description>
@@ -122,10 +122,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
+				<version>3.13.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<release>11</release>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -491,24 +490,17 @@
 			</build>
 		</profile>
 		<profile>
-			<id>use 1.7 compiler</id>
-			<activation>
-				<file>
-					<exists>/usr/lib/jvm/java-7-openjdk-amd64/bin/javac</exists>
-				</file>
-			</activation>
+			<id>compiler</id>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.3</version>
+						<version>3.13.0</version>
 						<configuration>
-							<source>1.7</source>
-							<target>1.7</target>
+							<release>11</release>
 							<verbose>true</verbose>
 							<fork>true</fork>
-							<executable>/usr/lib/jvm/java-7-openjdk-amd64/bin/javac</executable>
 						</configuration>
 					</plugin>
 				</plugins>
