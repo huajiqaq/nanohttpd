@@ -38,8 +38,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +46,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,12 +56,6 @@ import org.nanohttpd.protocols.http.NanoHTTPD;
 import org.nanohttpd.protocols.http.response.IStatus;
 import org.nanohttpd.protocols.http.response.Response;
 import org.nanohttpd.protocols.http.response.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ch.autumo.beetroot.BeetRootConfigurationManager;
-import ch.autumo.beetroot.BeetRootHTTPSession;
-import ch.autumo.beetroot.LanguageManager;
 
 /**
  * @author vnnv
@@ -69,12 +63,10 @@ import ch.autumo.beetroot.LanguageManager;
  */
 public class RouterNanoHTTPD extends NanoHTTPD {
 
-	/**
-	 * Patched: autumo-beetroot.
-     * beetroot logger.
+    /**
+     * logger to log to.
      */
-	protected static final Logger LOG = LoggerFactory.getLogger(RouterNanoHTTPD.class.getName());
-    //private static final Logger LOG = Logger.getLogger(RouterNanoHTTPD.class.getName());
+    private static final Logger LOG = Logger.getLogger(RouterNanoHTTPD.class.getName());
 
     public interface UriResponder {
 
@@ -279,7 +271,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
     public static class IndexHandler extends DefaultHandler {
 
         public String getText() {
-            return "<html><body><h2>Hello world!</h2></body></html>";
+            return "<html><body><h2>Hello world!</h3></body></html>";
         }
 
         @Override
@@ -297,7 +289,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
     public static class NotImplementedHandler extends DefaultHandler {
 
         public String getText() {
-            return "<html><body><h2>The uri is mapped in the router, but no handler is specified. <br> Status: Not implemented!</h2></body></html>";
+            return "<html><body><h2>The uri is mapped in the router, but no handler is specified. <br> Status: Not implemented!</h3></body></html>";
         }
 
         @Override
@@ -345,9 +337,6 @@ public class RouterNanoHTTPD extends NanoHTTPD {
 
         private final List<String> uriParams = new ArrayList<String>();
 
-        /** Patched: autumo-beetroot. */
-        private boolean hasLang = false;
-        
         public UriResource(String uri, int priority, Class<?> handler, Object... initParameter) {
             this(uri, handler, initParameter);
             this.priority = priority + uriParams.size() * 1000;
@@ -357,15 +346,6 @@ public class RouterNanoHTTPD extends NanoHTTPD {
             this.handler = handler;
             this.initParameter = initParameter;
             if (uri != null) {
-            	
-                /**
-                 * Patched for autumo-beetroot.
-                 * Determine if there are languages or not.
-                 */
-            	if (uri.startsWith("/:lang/")) {
-            		hasLang = true;
-            		uri = uri.replace("/:lang/", "/");
-            	}
                 this.uri = normalizeUri(uri);
                 parse();
                 this.uriPattern = createUriPattern();
@@ -397,26 +377,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
             String error = "General error!";
             if (handler != null) {
                 try {
-
-                	
-                    /* Patched: autumo-beetroot */
-            		Constructor<?> constructor = null;
-                    final Constructor<?> constructors[] = handler.getDeclaredConstructors();
-            		int ip = initParameter.length;
-                    for (int i = 0; i < constructors.length; i++) {
-            			int pc = constructors[i].getParameterCount();
-            			if (pc == ip) {
-            				constructor = constructors[i];
-            				break;
-            			}
-            		}                	
-                    constructor.setAccessible(true);
-                    final Object object = constructor.newInstance(initParameter);
-                    final Method initializeMethod = object.getClass().getMethod("initialize", BeetRootHTTPSession.class);
-                    initializeMethod.invoke(object, (BeetRootHTTPSession) session);
-                    //((BaseHandler) object).initialize(session);
-                    
-                    
+                    Object object = handler.newInstance();
                     if (object instanceof UriResponder) {
                         UriResponder responder = (UriResponder) object;
                         switch (session.getMethod()) {
@@ -441,7 +402,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
                     }
                 } catch (Exception e) {
                     error = "Error: " + e.getClass().getName() + " : " + e.getMessage();
-                    LOG.error(error, e);
+                    LOG.log(Level.SEVERE, error, e);
                 }
             }
             return Response.newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", error);
@@ -467,7 +428,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
             if (initParameter.length > parameterIndex) {
                 return paramClazz.cast(initParameter[parameterIndex]);
             }
-            LOG.error("init parameter index not available " + parameterIndex);
+            LOG.severe("init parameter index not available " + parameterIndex);
             return null;
         }
 
@@ -504,18 +465,6 @@ public class RouterNanoHTTPD extends NanoHTTPD {
             this.priority = priority;
         }
 
-        /**
-         * Has this URI an language in it or not?
-         * Unused atm.
-         * 
-         * Patched: autumo-beetroot.
-         * 
-         * @return true if this URI has a language route, otherwise false
-         */
-		public boolean hasLanguage() {
-			return hasLang;
-		}
-        
     }
 
     public static interface IRoutePrioritizer {
@@ -620,28 +569,8 @@ public class RouterNanoHTTPD extends NanoHTTPD {
 
         private IRoutePrioritizer routePrioritizer;
 
-        /**
-         * Is servlet names present?
-         * 
-         * Patched: autumo-beetroot.
-         */
-        private boolean insertServletNameInTemplateRefs = false;
-        
-        /**
-         * Holder for servlet names.
-         * 
-         * Patched: autumo-beetroot.
-         */
-        private String servletName = null;
-        
-        
         public UriRouter() {
             this.routePrioritizer = new DefaultRoutePrioritizer();
-            
-            /** Patched: autumo-beetroot. */
-    		servletName = BeetRootConfigurationManager.getInstance().getString("web_html_ref_pre_url_part");
-    		if (servletName != null && servletName.length() != 0)
-    			insertServletNameInTemplateRefs = true; 
         }
 
         /**
@@ -651,26 +580,11 @@ public class RouterNanoHTTPD extends NanoHTTPD {
          * is www.example.com/user/help - mapping 2 is returned if the incoming
          * uri is www.example.com/user/3232 - mapping 1 is returned
          * 
-         * @param session HTTP session
-         * @return response
+         * @param url
+         * @return
          */
         public Response process(IHTTPSession session) {
-        	
-        	/**
-        	 * Patched: autumo-beetroot.
-        	 * 
-        	 * Remove language for standard nano route matching.
-        	 * Decision what language template should be chosen
-        	 * is done by beetroot later.
-        	 * Also reduce URI for internal resources.
-        	 */
-        	String uri = session.getUri();
-    		if (insertServletNameInTemplateRefs && uri.startsWith("/"+servletName)) {
-    			uri = uri.replaceFirst("/"+servletName, "");
-    		}
-        	uri = LanguageManager.getInstance().removeLang(uri);
-            String work = normalizeUri(uri);
-            
+            String work = normalizeUri(session.getUri());
             Map<String, String> params = null;
             UriResource uriResource = error404Url;
             for (UriResource u : routePrioritizer.getPrioritizedRoutes()) {
@@ -682,18 +596,8 @@ public class RouterNanoHTTPD extends NanoHTTPD {
             }
             return uriResource.process(params, session);
         }
-        
-        /**
-         * Add route.
-         * 
-         * Patched: autumo-beetroot.
-         * 
-         * @param url URL
-         * @param priority priority
-         * @param handler handler
-         * @param initParameter initial parameters
-         */
-        public void addRoute(String url, int priority, Class<?> handler, Object... initParameter) {
+
+        private void addRoute(String url, int priority, Class<?> handler, Object... initParameter) {
             routePrioritizer.addRoute(url, priority, handler, initParameter);
         }
 
@@ -715,8 +619,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
 
     }
 
-    /** Patched: autumo-beetroot. */
-    protected UriRouter router;
+    private UriRouter router;
 
     public RouterNanoHTTPD(int port) {
         super(port);
@@ -729,7 +632,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
     }
 
     /**
-     * Default routings, they are over writable.
+     * default routings, they are over writable.
      * 
      * <pre>
      * router.setNotFoundHandler(GeneralHandler.class);
@@ -742,7 +645,7 @@ public class RouterNanoHTTPD extends NanoHTTPD {
         router.addRoute("/", Integer.MAX_VALUE / 2, IndexHandler.class);
         router.addRoute("/index.html", Integer.MAX_VALUE / 2, IndexHandler.class);
     }
-    
+
     public void addRoute(String url, Class<?> handler, Object... initParameter) {
         router.addRoute(url, 100, handler, initParameter);
     }
@@ -768,5 +671,4 @@ public class RouterNanoHTTPD extends NanoHTTPD {
         // Try to find match
         return router.process(session);
     }
-    
 }
