@@ -88,7 +88,7 @@ public class DefaultAsyncRunner implements IAsyncRunner {
         ++this.requestCount;
         this.running.add(clientHandler);
         // Submit the clientHandler to the executor service
-        executor.submit(() -> {
+        executor.execute(() -> {
             try {
                 // Set thread name for monitoring
                 Thread.currentThread().setName("NanoHttpd Request Processor (#" + this.requestCount + ").");
