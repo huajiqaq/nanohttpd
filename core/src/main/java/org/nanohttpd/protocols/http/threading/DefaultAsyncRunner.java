@@ -36,6 +36,9 @@ package org.nanohttpd.protocols.http.threading;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.nanohttpd.protocols.http.ClientHandler;
 
@@ -50,8 +53,13 @@ import org.nanohttpd.protocols.http.ClientHandler;
  */
 public class DefaultAsyncRunner implements IAsyncRunner {
 
-    protected long requestCount;
+	/**
+	 * Patched: autumo-beetroot.
+	 * Thread Pool.
+	 */
+	private ExecutorService executor = Executors.newCachedThreadPool();
 
+    protected long requestCount;
     private final List<ClientHandler> running = Collections.synchronizedList(new ArrayList<ClientHandler>());
 
     /**
@@ -67,6 +75,7 @@ public class DefaultAsyncRunner implements IAsyncRunner {
         for (ClientHandler clientHandler : new ArrayList<ClientHandler>(this.running)) {
             clientHandler.close();
         }
+        this.shutDownExecutorService();
     }
 
     @Override
@@ -78,13 +87,37 @@ public class DefaultAsyncRunner implements IAsyncRunner {
     public void exec(ClientHandler clientHandler) {
         ++this.requestCount;
         this.running.add(clientHandler);
-        createThread(clientHandler).start();
+        // Submit the clientHandler to the executor service
+        executor.submit(() -> {
+            try {
+                // Set thread name for monitoring
+                Thread.currentThread().setName("NanoHttpd Request Processor (#" + this.requestCount + ").");
+                clientHandler.run(); // Assuming ClientHandler implements Runnable
+            } catch (Exception e) {
+                // Rethrow as a runtime exception
+                throw new RuntimeException("Error processing client request", e);
+            }
+        });
     }
 
-    protected Thread createThread(ClientHandler clientHandler) {
-        Thread t = new Thread(clientHandler);
-        t.setDaemon(true);
-        t.setName("NanoHttpd Request Processor (#" + this.requestCount + ")");
-        return t;
-    }
+	/**
+	 * Shutdown thread pool.
+	 */
+	private void shutDownExecutorService() {
+		executor.shutdown();
+	    try {
+	        // Wait for tasks to complete for up to 60 seconds
+	        if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+	        	executor.shutdownNow(); // Force shutdown if timeout occurs
+	            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+	                // Ignore.
+	            }
+	        }
+	    } catch (InterruptedException ie) {
+	        // If interrupted, force shutdown immediately
+	    	executor.shutdownNow();
+	        Thread.currentThread().interrupt(); // Restore interrupt status
+	    }
+	}
+	
 }

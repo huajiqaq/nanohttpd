@@ -7,7 +7,7 @@
 	</parent>
 	<groupId>org.nanohttpd</groupId>
 	<artifactId>nanohttpd-project</artifactId>
-	<version>BEETROOT-2.3.4</version>
+	<version>BEETROOT-2.3.5</version>
 	<packaging>pom</packaging>
 	<name>NanoHttpd-Project</name>
 	<description>NanoHttpd is a light-weight HTTP server designed for embedding in other applications.</description>
