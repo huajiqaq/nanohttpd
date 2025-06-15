@@ -1,4 +1,4 @@
-description = 'NanoHttpd-Websocket'
+description = 'NanoHttpdX-Websocket'
 
 dependencies {
 	compile project(':nanohttpd')

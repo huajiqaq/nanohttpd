@@ -1,4 +1,4 @@
-description = 'NanoHttpd-Webserver'
+description = 'NanoHttpdX-Webserver'
 
 dependencies {
 	compile project(':nanohttpd')

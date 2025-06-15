@@ -1,4 +1,4 @@
-description = 'NanoHttpd-Samples'
+description = 'NanoHttpdX-Samples'
 
 dependencies {
 	compile project(':nanohttpd')

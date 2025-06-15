@@ -1,4 +1,4 @@
-description = 'NanoHttpd-Webserver-Markdown-Plugin'
+description = 'NanoHttpdX-Webserver-Markdown-Plugin'
 
 dependencies {
 	compile group: 'org.pegdown', name: 'pegdown', version: '1.4.1'

@@ -1,24 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.nanohttpd</groupId>
-		<artifactId>nanohttpd-project</artifactId>
-		<version>BEETROOT-2.3.5</version>
+		<groupId>io.github.huajiqaq</groupId>
+		<artifactId>nanohttpdx-project</artifactId>
+		<version>2.3.2</version>
 		<relativePath>../</relativePath>		
 	</parent>
-	<artifactId>nanohttpd-samples</artifactId>
-	<description>samples for nanohttpd</description>
+	<artifactId>nanohttpdx-samples</artifactId>
+	<description>samples for nanohttpdx</description>
 	<packaging>jar</packaging>
-	<name>NanoHttpd-Samples</name>
+	<name>NanoHttpdX-Samples</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>nanohttpd</artifactId>
+			<artifactId>nanohttpdx</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>nanohttpd-webserver</artifactId>
+			<artifactId>nanohttpdx-webserver</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

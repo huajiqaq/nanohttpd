@@ -38,7 +38,11 @@ import java.util.regex.Pattern;
 
 public class ContentType {
 
-    private static final String ASCII_ENCODING = "US-ASCII";
+    /**
+     * Changed default encoding from US-ASCII to UTF-8 to support wider character sets.
+     * Patch applied from autumo-beetroot project for better internationalization support.
+     */
+    private static final String ASCII_ENCODING = "UTF-8";
 
     /** patched: autumo-beetroot */
     public static final String MULTIPART_FORM_DATA_HEADER = "multipart/form-data";

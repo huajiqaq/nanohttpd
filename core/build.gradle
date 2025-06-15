@@ -1,4 +1,4 @@
-description = 'NanoHttpd-Core'
+description = 'NanoHttpdX-Core'
 
 dependencies {
 	testCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.2.5'
